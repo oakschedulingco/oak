@@ -79,13 +79,21 @@ def run():
                 args = json.loads(run.required_action.submit_tool_outputs.tool_calls[0].function.arguments)
                 # zip, dob, email, phone, smsyes, flu, covid, target_date
                 resp = get_avail_appts(args['zip'], args['dob'], args['email'], args['phone'], args['smsyes'], 'flu' in args and args['flu'], 'covid' in args and args['covid'], args['target_date'])
+
+                output = ''
+
+                if not resp:
+                    output = 'Sorry, there are no appointments available for that date.'
+                else:
+                    '\n'.join(resp)
+
                 run = client.beta.threads.runs.submit_tool_outputs(
                     thread_id=thread.id,
                     run_id=run.id,
                     tool_outputs=[
                         {
                             "tool_call_id": run.required_action.submit_tool_outputs.tool_calls[0].id,
-                            "output": '\n'.join(resp)
+                            "output": output
                         }
                     ]
                 )

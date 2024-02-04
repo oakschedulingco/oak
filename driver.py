@@ -78,6 +78,8 @@ def check_date_availability(zip, dob, email, phone, smsyes, flu, covid, rsv, pne
         elements = driver.find_elements(By.XPATH, "//*[starts-with(@id, 'wag-store-info-')]")
         max_number = max([int(element.get_attribute('id').split('-')[-1]) for element in elements], default=0)
 
+        da_soup = BeautifulSoup(driver.page_source, 'html.parser')
+
         locations_list = []
         for locations in range(max_number + 1):
             element_id = f'wag-store-info-{locations}'
@@ -86,10 +88,47 @@ def check_date_availability(zip, dob, email, phone, smsyes, flu, covid, rsv, pne
             street_address = location_element[2]
             csz = location_element[3]
 
-            locations_list.append(f"We found appointments at {street_address}, {csz}. You are {distance} away from this location!")
+            parentElem = da_soup.find('li', id=element_id)
+            all_spans = parentElem.find_all('span', {'class': 'newTimeslot__text'})
+            available_timeslots = ', '.join([f'{e.text}' for e in all_spans])
+
+            locations_list.append(f"{street_address}, {csz} - {distance} away - slots: {available_timeslots} - id {locations}")
+
+        for location in locations_list:
+            print(location)
 
         return locations_list
 
     except:
+        driver.quit()
+        return False
+
+def book_timeslot(zip, dob, email, phone, smsyes, flu, covid, rsv, pneumonia, shingles, radius, date, location_id, time):
+    driver = get_to_the_thing(zip, dob, email, phone, smsyes, flu, covid, rsv, pneumonia, shingles, radius)
+
+    try:
+        driver.find_element(by=By.CSS_SELECTOR, value=f'button[data-date=\'{date}\']').click()
+        sleep(2)
+        elements = driver.find_elements(By.XPATH, "//*[starts-with(@id, 'wag-store-info-')]")
+        max_number = max([int(element.get_attribute('id').split('-')[-1]) for element in elements], default=0)
+
+        da_soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+        for locations in range(max_number + 1):
+            if locations != location_id:
+                continue
+            element_id = f'wag-store-info-{locations}'
+            location_element = driver.find_element(By.ID, element_id).text.split("\n")
+            distance = location_element[1]
+            street_address = location_element[2]
+            csz = location_element[3]
+
+            elem = driver.find_element(By.CSS_SELECTOR, f'span.newTimeslot__text:contains(\'{time}\')')
+            elem.click()
+
+            input()
+    except e:
+        print(e)
+        input()
         driver.quit()
         return False
