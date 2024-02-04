@@ -5,8 +5,9 @@ import json
 from yaspin import yaspin
 from openai import OpenAI
 from colorama import Fore, Style
+import os
 
-KEY = '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'
+KEY = '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'
 
 client = OpenAI(api_key=KEY)
 thread = client.beta.threads.create()
