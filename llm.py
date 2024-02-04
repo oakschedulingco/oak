@@ -7,7 +7,7 @@ from openai import OpenAI
 from colorama import Fore, Style
 import os
 
-KEY = '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'
+KEY = os.environ.get("OPENAI_API_KEY")
 
 client = OpenAI(api_key=KEY)
 thread = client.beta.threads.create()

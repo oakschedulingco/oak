@@ -92,10 +92,7 @@ def check_date_availability(zip, dob, email, phone, smsyes, flu, covid, rsv, pne
             all_spans = parentElem.find_all('span', {'class': 'newTimeslot__text'})
             available_timeslots = ', '.join([f'{e.text}' for e in all_spans])
 
-            locations_list.append(f"{street_address}, {csz} - {distance} away - slots: {available_timeslots} - id {locations}")
-
-        for location in locations_list:
-            print(location)
+            locations_list.append(f"{street_address}, {csz} - {distance} away - slots: {available_timeslots[:5]} - id {locations}")
 
         return locations_list
 
